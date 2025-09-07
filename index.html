@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DesCartes</title>
+    <style>
+        /* Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        .accueil {
+            text-align: center;
+            max-width: 700px;
+            margin-bottom: 40px;
+        }
+
+        .accueil h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+
+        .accueil p {
+            font-size: 1.2rem;
+            color: #555;
+            user-select: none;
+        }
+
+        main {
+            display: flex;
+            gap: 40px;
+            max-width: 900px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        /* Conteneur gauche (message + bouton) */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .left-panel h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+
+        .left-panel p {
+            font-size: 1.1rem;
+            color: #555;
+            user-select: none;
+        }
+
+        .left-panel button {
+            width: fit-content;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(41, 128, 185, 0.6);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+        }
+
+        .left-panel button:hover {
+            background: linear-gradient(135deg, #2980b9, #1c5980);
+            box-shadow: 0 8px 16px rgba(28, 89, 128, 0.8);
+        }
+
+        /* Conteneur droit (glisser-déposer) */
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .glisser-deposer {
+            border: 3px dashed #3498db;
+            border-radius: 14px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #3498db;
+            font-size: 1.3rem;
+            text-align: center;
+            padding: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+            background-color: #f0f8ff;
+            box-shadow: inset 0 0 10px #d0e6fb;
+            overflow-y: auto;
+        }
+
+        .glisser-deposer.dragover {
+            background-color: #d6eaff;
+            border-color: #1c5980;
+            box-shadow: 0 0 15px #1c5980;
+        }
+
+        /* Liste des fichiers */
+        .file-list {
+            margin-top: 10px;
+            width: 100%;
+            max-height: 140px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 1rem;
+            color: #2c3e50;
+            user-select: text;
+        }
+
+        .file-list li {
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        /* Input file caché */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Bouton final */
+        #btn-creer {
+            padding: 15px 50px;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 132, 73, 0.7);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 40px;
+            align-self: center;
+            user-select: none;
+        }
+
+        #btn-creer:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #btn-creer:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1e8449, #145a31);
+            box-shadow: 0 10px 25px rgba(20, 90, 49, 0.9);
+        }
+
+        /* Popup overlay */
+        .Popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* Popup box */
+        .Popup {
+            background-color: #2ecc71;
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.8);
+            max-width: 320px;
+            text-align: center;
+            font-size: 1.3rem;
+            position: relative;
+            animation: slideUp 0.4s ease forwards;
+            user-select: none;
+        }
+
+        .Popup p {
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .Popup button {
+            background-color: #27ae60;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.7);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+        }
+
+        .Popup button:hover {
+            background-color: #1e8449;
+            box-shadow: 0 8px 20px rgba(30, 132, 73, 0.9);
+        }
+
+        .Popup button i {
+            font-style: normal;
+            font-weight: 700;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Prévisualisation cartes */
+        #output {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-bottom: 40px;
+            max-height: 600px;
+            overflow-y: auto;
+            user-select: none;
+        }
+
+        .card {
+            position: relative;
+            width: 11cm;
+            height: 7cm;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(39, 174, 96, 0.3);
+            z-index: 10;
+        }
+
+        .card img.bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 0;
+        }
+
+        .card img.photo {
+        position: absolute;
+        top: 1.40cm;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3.2cm;
+        height: 3.2cm;
+        border-radius: 50%;
+        object-fit: cover;
+        }
+
+        .card .text.name {
+            position: absolute;
+            top: 4.7cm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: #488018;
+            text-align: center;
+            width: 90%;
+            z-index: 3;
+        }
+        .card .text.grade {
+            position: absolute;
+            top: 5.3cm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #7db44d;
+            text-align: center;
+            width: 90%;
+            z-index: 3;
+        }
+        .card .text.address {
+            position: absolute;
+            top: 5.7cm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #366d06;
+            text-align: center;
+            width: 90%;
+            z-index: 3;
+        }
+        .card .text.tutor {
+            position: absolute;
+            top: 6.1cm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #7db44d;
+            text-align: center;
+            width: 90%;
+            z-index: 3;
+        }
+        .card .text.year {
+            position: absolute;
+            top: 6.46cm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 7px;
+            color: black;
+            text-align: center;
+            width: 90%;
+            z-index: 3;
+        }
+
+        /* Responsive */
+        @media (max-width: 850px) {
+            main {
+                flex-direction: column;
+            }
+
+            .left-panel, .right-panel {
+                width: 100%;
+            }
+
+            .glisser-deposer {
+                min-height: 180px;
+            }
+
+            #output {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="accueil">
+        <h1>Bienvenue sur DesCartes</h1>
+        <p>Votre plateforme pour automatiser la création de vos cartes d'élèves à partir d'un fichier Excel et de photos d'élèves</p>
+    </div>
+
+    <main>
+        <!-- Etape 1 : Photos -->
+        <section class="left-panel" aria-labelledby="photos-title">
+            <h2 id="photos-title">Étape 1 : Choisissez les photos</h2>
+            <p>Glissez et déposez vos photos d'élèves ici ou choisissez un dossier</p>
+            <label for="input-photos" class="btn-label">
+                <button type="button" class="photo_button" aria-label="Choisir un dossier de photos">Choisir un dossier</button>
+            </label>
+            <input type="file" id="input-photos" multiple webkitdirectory directory accept="image/*" aria-describedby="photos-desc" />
+        </section>
+
+        <section class="right-panel" aria-labelledby="photos-dropzone">
+            <div id="dropzone-photos" class="glisser-deposer" tabindex="0" aria-describedby="photos-desc" role="button" aria-label="Zone de dépôt des photos">
+                <span class="dropzone-text">Déposez vos photos ici</span>
+                <ul class="file-list" id="photos-file-list" aria-live="polite" aria-relevant="additions"></ul>
+            </div>
+        </section>
+    </main>
+
+    <main>
+        <!-- Etape 2 : Excel -->
+        <section class="left-panel" aria-labelledby="excel-title">
+            <h2 id="excel-title">Étape 2 : Sélectionnez le fichier Excel</h2>
+            <p>Glissez et déposez le fichier Excel ici ou sélectionnez un fichier sur votre appareil</p>
+            <label for="input-excel" class="btn-label">
+                <button type="button" class="excel_button" aria-label="Sélectionner un fichier Excel">Sélectionnez un fichier Excel</button>
+            </label>
+            <input type="file" id="input-excel" accept=".xls,.xlsx,.csv" aria-describedby="excel-desc" />
+        </section>
+
+        <section class="right-panel" aria-labelledby="excel-dropzone">
+            <div id="dropzone-excel" class="glisser-deposer" tabindex="0" aria-describedby="excel-desc" role="button" aria-label="Zone de dépôt du fichier Excel">
+                <span class="dropzone-text">Déposez le fichier Excel ici</span>
+                <ul class="file-list" id="excel-file-list" aria-live="polite" aria-relevant="additions"></ul>
+            </div>
+        </section>
+    </main>
+
+    <button id="btn-creer" type="button" disabled aria-disabled="true" aria-label="Créer DesCartes">Créer <i>DesCartes</i></button>
+
+    <div id="output" aria-live="polite" aria-atomic="true" aria-relevant="additions" aria-label="Prévisualisation des cartes générées"></div>
+
+    <!-- Popup overlay + popup -->
+    <div class="Popup-overlay" id="popup-overlay" role="alert" aria-live="assertive" aria-modal="true" aria-hidden="true">
+        <div class="Popup" role="dialog" aria-labelledby="popup-title" aria-describedby="popup-desc">
+            <p id="popup-desc">Vos cartes sont prêtes !</p>
+            <button id="btn-download" aria-label="Télécharger DesCartes">Télécharger <i>DesCartes</i></button>
+        </div>
+    </div>
+
+    <!-- Librairies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        // Variables globales
+        let excelData = [];
+        let imagesMap = {};
+        let idColumn = null;
+
+        // Elements DOM
+        const dropzonePhotos = document.getElementById('dropzone-photos');
+        const inputPhotos = document.getElementById('input-photos');
+        const photosFileList = document.getElementById('photos-file-list');
+
+        const dropzoneExcel = document.getElementById('dropzone-excel');
+        const inputExcel = document.getElementById('input-excel');
+        const excelFileList = document.getElementById('excel-file-list');
+
+        const btnCreer = document.getElementById('btn-creer');
+        const popupOverlay = document.getElementById('popup-overlay');
+        const btnDownload = document.getElementById('btn-download');
+        const output = document.getElementById('output');
+
+        // Affiche la liste des fichiers dans une UL
+        function afficherFichiers(fileListElement, files) {
+            fileListElement.innerHTML = '';
+            if (files.length === 0) {
+                fileListElement.previousElementSibling.style.display = 'inline'; // Affiche le texte "Déposez..."
+                return;
+            }
+            fileListElement.previousElementSibling.style.display = 'none'; // Cache le texte
+            for (let i = 0; i < files.length; i++) {
+                const li = document.createElement('li');
+                li.textContent = files[i].name;
+                fileListElement.appendChild(li);
+            }
+        }
+
+        // Gestion drag & drop + input pour photos
+        function handleFilesPhotos(files) {
+            if (!files || files.length === 0) return;
+            afficherFichiers(photosFileList, files);
+            imagesMap = {};
+            for(const file of files){
+                const key = file.name.split('.')[0].trim().toLowerCase();
+                imagesMap[key] = URL.createObjectURL(file);
+            }
+            checkReadyToCreate();
+        }
+
+        dropzonePhotos.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropzonePhotos.classList.add('dragover');
+        });
+
+        dropzonePhotos.addEventListener('dragleave', e => {
+            e.preventDefault();
+            dropzonePhotos.classList.remove('dragover');
+        });
+
+        dropzonePhotos.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzonePhotos.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            inputPhotos.files = files; // Synchroniser input
+            handleFilesPhotos(files);
+        });
+
+        inputPhotos.addEventListener('change', e => {
+            handleFilesPhotos(e.target.files);
+        });
+
+        document.querySelector('.photo_button').addEventListener('click', () => {
+            inputPhotos.click();
+        });
+
+        // Gestion drag & drop + input pour excel
+        function handleFilesExcel(files) {
+            if (!files || files.length === 0) return;
+            afficherFichiers(excelFileList, files);
+                        const file = files[0];
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type:"array" });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    excelData = XLSX.utils.sheet_to_json(worksheet);
+                    if(excelData.length > 0) idColumn = Object.keys(excelData[0])[0];
+                    alert(`Excel chargé avec ${excelData.length} lignes.`);
+                    checkReadyToCreate();
+                } catch (err) {
+                    alert("Erreur lors de la lecture du fichier Excel. Veuillez vérifier le fichier.");
+                    excelData = [];
+                    idColumn = null;
+                    checkReadyToCreate();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        dropzoneExcel.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropzoneExcel.classList.add('dragover');
+        });
+
+        dropzoneExcel.addEventListener('dragleave', e => {
+            e.preventDefault();
+            dropzoneExcel.classList.remove('dragover');
+        });
+
+        dropzoneExcel.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzoneExcel.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            inputExcel.files = files; // Synchroniser input
+            handleFilesExcel(files);
+        });
+
+        inputExcel.addEventListener('change', e => {
+            handleFilesExcel(e.target.files);
+        });
+
+        document.querySelector('.excel_button').addEventListener('click', () => {
+            inputExcel.click();
+        });
+
+        // Vérifie si on peut activer le bouton "Créer"
+        function checkReadyToCreate() {
+            if (excelData.length > 0 && Object.keys(imagesMap).length > 0) {
+                btnCreer.disabled = false;
+                btnCreer.setAttribute('aria-disabled', 'false');
+            } else {
+                btnCreer.disabled = true;
+                btnCreer.setAttribute('aria-disabled', 'true');
+            }
+        }
+
+        // Fonction pour récupérer un champ en ignorant casse et espaces
+        function getField(row, name) {
+            const key = Object.keys(row).find(k => k.trim().toLowerCase() === name.toLowerCase());
+            return key ? row[key] : "";
+        }
+
+        // Générer les cartes
+        btnCreer.addEventListener('click', () => {
+            output.innerHTML = "";
+            if(excelData.length === 0){
+                alert("Veuillez charger le fichier Excel.");
+                return;
+            }
+            if(Object.keys(imagesMap).length === 0){
+                alert("Veuillez charger les photos.");
+                return;
+            }
+
+            excelData.forEach((row, index) => {
+                let idValue = String(row[idColumn]).trim().toLowerCase();
+                const imgSrc = imagesMap[idValue] || "modeles/photo_default.png";
+
+                const div = document.createElement("div");
+                div.className = "card";
+                div.innerHTML = `
+                    <img src="modeles/macaron_modele.png" class="bg" alt="Fond du macaron">
+                    <img src="${imgSrc}" class="photo" alt="Photo de ${getField(row, "Nom")} ${getField(row, "Postnom")}">
+                    <div class="text name">${getField(row, "Nom")} ${getField(row, "Postnom")}</div>
+                    <div class="text grade">${getField(row, "Classe")}</div>
+                    <div class="text address">${getField(row, "Adresse")}</div>
+                    <div class="text tutor">Tuteur : ${getField(row, "Tuteur")}</div>
+                    <div class="text year">Année scolaire ${getField(row, "Annee") || "2025-2026"}</div>
+                `;
+                output.appendChild(div);
+            });
+
+            // Afficher la popup
+            popupOverlay.style.display = 'flex';
+            popupOverlay.setAttribute('aria-hidden', 'false');
+            btnDownload.focus();
+        });
+
+        // Télécharger toutes les cartes en PNG dans un ZIP
+        btnDownload.addEventListener('click', async () => {
+            const cards = document.querySelectorAll(".card");
+            if(cards.length === 0){
+                alert("Pas de cartes générées.");
+                return;
+            }
+            btnDownload.disabled = true;
+            btnDownload.textContent = "⏳ Préparation en cours...";
+            const zip = new JSZip();
+            for(let i=0; i<cards.length; i++){
+                const canvas = await html2canvas(cards[i], { scale:3, useCORS:true, backgroundColor:null });
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                zip.file(`carte_${i+1}.png`, blob);
+            }
+            zip.generateAsync({type:"blob"}).then((content) => {
+                saveAs(content, "macarons.zip");
+                btnDownload.disabled = false;
+                btnDownload.textContent = "Télécharger DesCartes";
+                popupOverlay.style.display = 'none';
+                popupOverlay.setAttribute('aria-hidden', 'true');
+                btnCreer.focus();
+            });
+        });
+
+        // Fermer popup si clic en dehors de la boîte
+        popupOverlay.addEventListener('click', e => {
+            if (e.target === popupOverlay) {
+                popupOverlay.style.display = 'none';
+                popupOverlay.setAttribute('aria-hidden', 'true');
+                btnCreer.focus();
+            }
+        });
+
+        // Fermer popup avec Échap
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && popupOverlay.style.display === 'flex') {
+                popupOverlay.style.display = 'none';
+                popupOverlay.setAttribute('aria-hidden', 'true');
+                btnCreer.focus();
+            }
+        });
+    </script>
+
+</body>
+</html>
