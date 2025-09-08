@@ -30,14 +30,84 @@
         color: #2c3e50;
       }
 
-      .accueil {
-        text-align: center;
-        max-width: 700px;
-        margin-bottom: 40px;
+      body {
+        background: linear-gradient(135deg, #e0f7fa 0%, #f5f7fa 100%);
       }
-
-      .accueil h1 {
+      header {
+        width: 100vw;
+        background: linear-gradient(90deg, #27ae60 0%, #3498db 100%);
+        color: white;
+        padding: 32px 0 18px 0;
+        text-align: center;
+        box-shadow: 0 2px 12px rgba(39, 174, 96, 0.12);
+        margin-bottom: 30px;
+      }
+      header h1 {
         font-size: 2.8rem;
+        letter-spacing: 2px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+      header p {
+        font-size: 1.2rem;
+        font-weight: 400;
+        opacity: 0.95;
+      }
+      .help-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+        padding: 22px 32px;
+        max-width: 700px;
+        margin: 0 auto 32px auto;
+        text-align: left;
+        color: #2c3e50;
+      }
+      .help-section h2 {
+        font-size: 1.3rem;
+        color: #27ae60;
+        margin-bottom: 10px;
+      }
+      .help-section ul {
+        margin-left: 18px;
+        margin-bottom: 0;
+      }
+      .help-section li {
+        margin-bottom: 6px;
+        font-size: 1.05rem;
+      }
+      .left-panel, .right-panel {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+        padding: 24px 18px;
+      }
+      .left-panel button, .excel_button, .photo_button {
+        background: linear-gradient(135deg, #27ae60, #3498db);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 28px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.12);
+        transition: background 0.3s, box-shadow 0.3s;
+      }
+      .left-panel button:hover, .excel_button:hover, .photo_button:hover {
+        background: linear-gradient(135deg, #3498db, #27ae60);
+        box-shadow: 0 8px 24px rgba(52, 152, 219, 0.18);
+      }
+      #btn-creer {
+        margin-top: 18px;
+      }
+      @media (max-width: 850px) {
+        .help-section {
+          padding: 14px 8px;
+        }
+        .left-panel, .right-panel {
+          padding: 12px 6px;
+        }
+      }
         margin-bottom: 10px;
         user-select: none;
       }
@@ -455,16 +525,47 @@
           max-height: 400px;
         }
       }
+
+      .footer-speed, .footer-speed-reserved {
+        width: 100vw;
+        text-align: center;
+        padding: 18px 0 12px 0;
+        color: #fff;
+        font-size: 1.08rem;
+        font-weight: 500;
+        background: linear-gradient(90deg, #27ae60 0%, #3498db 100%);
+        letter-spacing: 1px;
+        margin-top: 40px;
+        border-top: none;
+      }
+      .footer-speed-reserved {
+        font-size: 0.95em;
+        font-weight: 400;
+        padding: 6px 0 18px 0;
+        margin-top: 0;
+      }
     </style>
   </head>
   <body>
-    <div class="accueil">
-      <h1>Bienvenue sur DesCartes</h1>
+    <header>
+      <h1>DesCartes</h1>
       <p>
-        Votre plateforme pour automatiser la création de vos cartes d'élèves à
-        partir d'un fichier Excel et de photos d'élèves
+        Automatisez la création de vos cartes d'élèves à partir d'un fichier
+        Excel et de photos
       </p>
-    </div>
+    </header>
+    <section class="help-section">
+      <h2>Comment utiliser la plateforme ?</h2>
+      <ul>
+        <li>1. Glissez-déposez ou sélectionnez les photos des élèves.</li>
+        <li>
+          2. Glissez-déposez ou sélectionnez le fichier Excel contenant les
+          informations.
+        </li>
+        <li>3. Cliquez sur <b>Créer DesCartes</b> pour générer les cartes.</li>
+        <li>4. Téléchargez toutes les cartes en un clic.</li>
+      </ul>
+    </section>
     <!-- Etape 0 : Choix des modeles -->
     <main>
       <section class="left-panel" aria-labelledby="modele-title">
@@ -472,7 +573,8 @@
         <p>Sélectionnez le modèle de carte que vous souhaitez utiliser</p>
         <div id="modele-list" class="modele-container"></div>
       </section>
-
+    </main>
+    <main>
       <!-- Etape 1 : Photos -->
       <section class="left-panel" aria-labelledby="photos-title">
         <h2 id="photos-title">Étape 1 : Choisissez les photos</h2>
@@ -876,5 +978,9 @@
 
       // Choix des modeles
     </script>
+    <footer class="footer-speed">Powered by <b>SPEED PROD</b></footer>
+    <footer class="footer-speed-reserved">
+      © 2025 SPEED PROD – Tous droits réservés
+    </footer>
   </body>
 </html>
